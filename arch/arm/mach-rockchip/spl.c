@@ -7,6 +7,7 @@
 #include <common.h>
 #include <version.h>
 #include <boot_rkimg.h>
+#include <android_bootloader_message.h>
 #include <debug_uart.h>
 #include <dm.h>
 #include <key.h>
