@@ -17,6 +17,7 @@
 #include <asm/io.h>
 #include <div64.h>
 #include <linux/math64.h>
+#include <erofs.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -217,6 +218,27 @@ static struct fstype_info fstypes[] = {
 		.write = fs_write_unsupported,
 		.uuid = fs_uuid_unsupported,
 		.opendir = fs_opendir_unsupported,
+	},
+#endif
+#if IS_ENABLED(CONFIG_FS_EROFS)
+	{
+		.fstype = FS_TYPE_EROFS,
+		.name = "erofs",
+		.null_dev_desc_ok = false,
+		.probe = erofs_probe,
+		.opendir = erofs_opendir,
+		.readdir = erofs_readdir,
+		.ls = fs_ls_generic,
+		.read = erofs_read,
+		.size = erofs_size,
+		.close = erofs_close,
+		.closedir = erofs_closedir,
+		.exists = erofs_exists,
+		.uuid = fs_uuid_unsupported,
+		.write = fs_write_unsupported,
+		.ln = fs_ln_unsupported,
+		.unlink = fs_unlink_unsupported,
+		.mkdir = fs_mkdir_unsupported,
 	},
 #endif
 	{
