@@ -241,6 +241,7 @@ int dtoverlay_apply(void *fdt, const char *dtoverlay, struct blk_desc *dev_desc,
 		const char *root, char **path)
 {
 	char *paths[] = {
+		"rockchip/overlays/"CONFIG_BOARDNAME"/",
 		"overlays/"CONFIG_BOARDNAME"/",
 		""CONFIG_BOARDNAME"/",
 	};
@@ -318,9 +319,9 @@ int board_read_dtb_file(void *fdt_addr)
 		char *kvers = env_get("fk_kvers");
 		if (kvers) {
 			/* Set default device tree file with given kernel version */
-			snprintf(root, sizeof(root), "dtbs/%s/rockchip/", kvers);
+			snprintf(root, sizeof(root), "dtbs/%s", kvers);
 			strcpy(buf, root);
-			strcat(buf, CONFIG_ROCKCHIP_EARLY_DISTRO_DTB_PATH);
+			strcat(buf, "/"CONFIG_ROCKCHIP_EARLY_DISTRO_DTB_PATH);
 
 			paths[0] = buf;
 		}
