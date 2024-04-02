@@ -624,6 +624,14 @@ int uclass_resolve_seq(struct udevice *dev)
 	int ret;
 
 	assert(dev->seq == -1);
+
+#if defined(CONFIG_TARGET_ODROID_M1) || defined(CONFIG_TARGET_ODROID_M1S)
+	if (!strcmp(dev->name, "dwmmc@fe2b0000"))
+		strcpy((char *)dev->name, "mmc@fe2b0000");
+	else if (!strcmp(dev->name, "dwmmc@fe2c0000"))
+		strcpy((char *)dev->name, "mmc@fe2c0000");
+#endif
+
 	ret = uclass_find_device_by_seq(dev->uclass->uc_drv->id, dev->req_seq,
 					false, &dup);
 	if (!ret) {
