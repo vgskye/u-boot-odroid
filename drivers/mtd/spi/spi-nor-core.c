@@ -70,6 +70,22 @@ static int spi_nor_write_reg(struct spi_nor *nor, u8 opcode, u8 *buf, int len)
 	return spi_nor_read_write_reg(nor, &op, buf);
 }
 
+/*
+ * Since security registers in XTX flash memory uses different address
+ * format than normal memory, the address needs to be calculated.
+ *
+ * Security Register #1 : 0x001000 ~ 0x0013ff (from 0x000000 ~ 0x0003ff)
+ * Security Register #2 : 0x002000 ~ 0x0023ff (from 0x000400 ~ 0x0007ff)
+ * Security Register #3 : 0x003000 ~ 0x0033ff (from 0x000800 ~ 0x000bff)
+ *
+ * This scheme must work with only certain command that access the
+ * security registers, Read (0x48) / Write (0x42) / Erase (0x44), only.
+ */
+static u32 xtx_security_address(u32 addr)
+{
+       return (((addr + 0x400) & 0xc00) << 2) | (addr & 0x3ff);
+}
+
 static ssize_t spi_nor_read_data(struct spi_nor *nor, loff_t from, size_t len,
 				 u_char *buf)
 {
@@ -80,6 +96,13 @@ static ssize_t spi_nor_read_data(struct spi_nor *nor, loff_t from, size_t len,
 				   SPI_MEM_OP_DATA_IN(len, buf, 1));
 	size_t remaining = len;
 	int ret;
+
+	if (nor->secure_on) {
+		if (nor->info->id[0] == 0x0b) {	// XTX flash memory
+			op.cmd.opcode = 0x48;
+			op.addr.val = xtx_security_address(from);
+		}
+	}
 
 	/* get transfer protocols. */
 	op.cmd.buswidth = spi_nor_get_protocol_inst_nbits(nor->read_proto);
@@ -117,6 +140,13 @@ static ssize_t spi_nor_write_data(struct spi_nor *nor, loff_t to, size_t len,
 				   SPI_MEM_OP_NO_DUMMY,
 				   SPI_MEM_OP_DATA_OUT(len, buf, 1));
 	int ret;
+
+	if (nor->secure_on) {
+		if (nor->info->id[0] == 0x0b) {	// XTX flash memory
+			op.cmd.opcode = 0x42;
+			op.addr.val = xtx_security_address(to);
+		}
+	}
 
 	/* get transfer protocols. */
 	op.cmd.buswidth = spi_nor_get_protocol_inst_nbits(nor->write_proto);
@@ -538,6 +568,13 @@ static int spi_nor_erase_sector(struct spi_nor *nor, u32 addr)
 			   SPI_MEM_OP_ADDR(nor->addr_width, addr, 1),
 			   SPI_MEM_OP_NO_DUMMY,
 			   SPI_MEM_OP_NO_DATA);
+
+	if (nor->secure_on) {
+		if (nor->info->id[0] == 0x0b)	{// XTX flash memory
+			op.cmd.opcode = 0x44;
+			addr = xtx_security_address(addr);
+		}
+	}
 
 	if (nor->erase)
 		return nor->erase(nor, addr);
