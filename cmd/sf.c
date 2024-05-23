@@ -564,10 +564,13 @@ static int do_spi_flash_secure(int argc, char * const argv[])
 	if (argc < 2)
 		return -1;
 
-	if (!strcmp(argv[1], "on"))
+	if (!strcmp(argv[1], "on")) {
 		ret = flash->write_reg(flash, 0xb1, NULL, 0);	// ENSO
-	else if (!strcmp(argv[1], "off"))
+		flash->secure_on = true;
+	} else if (!strcmp(argv[1], "off")) {
 		ret = flash->write_reg(flash, 0xc1, NULL, 0);	// EXSO
+		flash->secure_on = false;
+	}
 
 	return ret;
 }

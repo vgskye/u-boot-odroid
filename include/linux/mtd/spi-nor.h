@@ -345,6 +345,8 @@ struct spi_nor {
 	u32 size;
 	u32 sector_size;
 	u32 erase_size;
+
+	bool secure_on;
 };
 
 static inline void spi_nor_set_flash_node(struct spi_nor *nor,
