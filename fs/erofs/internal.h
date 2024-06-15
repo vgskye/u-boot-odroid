@@ -3,7 +3,6 @@
 #define __EROFS_INTERNAL_H
 
 #include "linux/compat.h"
-#define __packed __attribute__((__packed__))
 
 #include <linux/stat.h>
 #include <linux/bug.h>

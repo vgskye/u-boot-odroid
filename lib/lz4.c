@@ -241,3 +241,21 @@ FORCE_INLINE int LZ4_decompress_generic(
 _output_error:
     return (int) (-(((const char*)ip)-source))-1;
 }
+
+int LZ4_decompress_safe(const char *source, char *dest,
+	int compressedSize, int maxDecompressedSize)
+{
+	return LZ4_decompress_generic(source, dest,
+				      compressedSize, maxDecompressedSize,
+				      endOnInputSize, 0, maxDecompressedSize,
+				      noDict, (BYTE *)dest, NULL, 0);
+}
+
+int LZ4_decompress_safe_partial(const char *src, char *dst,
+	int compressedSize, int targetOutputSize, int dstCapacity)
+{
+	dstCapacity = min(targetOutputSize, dstCapacity);
+	return LZ4_decompress_generic(src, dst, compressedSize, dstCapacity,
+				      endOnInputSize, 1, targetOutputSize,
+				      noDict, (BYTE *)dst, NULL, 0);
+}

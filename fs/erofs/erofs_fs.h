@@ -12,7 +12,6 @@
 #include <asm/unaligned.h>
 #include <fs.h>
 #include <part.h>
-#include <stdint.h>
 #include <compiler.h>
 
 #define EROFS_SUPER_MAGIC_V1    0xE0F5E1E2
